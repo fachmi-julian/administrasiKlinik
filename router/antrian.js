@@ -1,3 +1,4 @@
+//ini router
 const antrianController = require('../controller/antrian');
 
 module.exports = app => {
