@@ -16,7 +16,7 @@
     "mongodb": "^3.5.6",
     "mongoose": "^5.9.9",
     "nodemon": "^2.0.3",
-    "pdfmake": "^0.1.66",
+    "pdfmake": "^0.1.68",
     "restify": "^8.5.1"
   }
 }

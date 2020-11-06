@@ -1,8 +1,10 @@
 const modelAntrian = require('../model/antrian');
 const pdfMake = require('pdfmake/build/pdfmake');
-const pdfFont = require('pdfmake/build/vfs_fonts');
+const vfsFonts = require('pdfmake/build/vfs_fonts');
 const moment = require('moment');
-const { getPasienByNik } = require('./pendaftaran');
+const PdfPrinter = require('../node_modules/pdfmake/src/printer');
+const fs = require('fs');
+pdfMake.vfs = vfsFonts.pdfMake.vfs;
 
 
 module.exports = {
@@ -82,13 +84,46 @@ module.exports = {
     },
     detailAntrianPasien: async (req, res) => {       
         const param =  req.query.nik
-        const today = moment().format('MM-DD-YYYY')
-        console.log(today)        
+        const today = moment().format('MM-DD-YYYY')                
         const data = await modelAntrian.findOne({tanggal:today,nik:param});
         if (!data) {
             res.send(JSON.stringify({status:'Data Not Found', result:data, statusCode:500}));
         }       
         res.send(JSON.stringify(data));
         
+    },
+    downloadAntrean: async (req, res) => {
+        const param = req.params;        
+        const data = await modelAntrian.findOne(param);
+        console.log(data);
+        const tanggal_antrian = moment(data.tanggal).format('DD-MM-YYYY');
+
+        const fonts = {
+            Roboto: {
+                normal: './fonts/Roboto/Roboto-Regular.ttf',
+                bold: './fonts/Roboto/Roboto-Medium.ttf',
+                italics: './fonts/Roboto-Italic.ttf',
+                bolditalics: './fonts/Roboto-MediumItalic.ttf'
+            }
+        };
+        const printer = new PdfPrinter(fonts);
+        var docDefinition = {
+            content: [
+                {text: "Klinik Setia Mekar", fontSize: 25, alignment: 'center'},
+                {text: "Jl. Nusantara Raya Perumnas 3 Bekasi Timur", fontSize: 15, alignment: 'center'},
+                {text: ""},
+                {width: 'auto',text: data.nomer_antrian, fontSize: 250, alignment: 'center'},
+                {width: 'auto',text: data.nik, fontSize: 20, alignment: 'center'},
+                {width: 'auto',text: `Poli : ${data.poli}`, fontSize: 20, alignment: 'center'},
+                {width: 'auto',text: `Dokter : ${data.nama_dokter}`, fontSize: 20, alignment: 'center'},
+                {width: 'auto',text: `Tanggal : ${tanggal_antrian}`, fontSize: 20, alignment: 'center'},                
+              ]
+        }
+        const link = './uploads/antrian/antrian.pdf'        
+        const pdfDoc = printer.createPdfKitDocument(docDefinition);
+        pdfDoc.pipe(fs.createWriteStream(link));
+        pdfDoc.end();
+
+        res.send(JSON.stringify({status: "download success",link: link, code: 200}));
     }
 }

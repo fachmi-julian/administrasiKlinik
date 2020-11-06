@@ -6,4 +6,5 @@ module.exports = app => {
     app.put('/api/antrian/:id',antrianController.callAntrian);
     app.get('/api/antrian', antrianController.getAntrian);
     app.get('/api/antrian/detail', antrianController.detailAntrianPasien);
+    app.get('/api/antrian/download/:nik', antrianController.downloadAntrean);
 }
