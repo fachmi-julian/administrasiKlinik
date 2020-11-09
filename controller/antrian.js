@@ -121,9 +121,11 @@ module.exports = {
         }
         const link = './uploads/antrian/antrian.pdf'        
         const pdfDoc = printer.createPdfKitDocument(docDefinition);
-        pdfDoc.pipe(fs.createWriteStream(link));
-        pdfDoc.end();
+        
+        await pdfDoc.pipe(fs.createWriteStream(link));
+        //pdfDoc.end();
 
-        res.send(JSON.stringify({status: "download success",link: link, code: 200}));
+        //, bvb,   ,m,m,res.send(JSON.stringify({status: "download success",link: link, code: 200}));
+        res.download(link);
     }
 }
